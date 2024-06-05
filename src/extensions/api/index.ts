@@ -1,7 +1,7 @@
 import { Server } from "http";
 import { prisma } from "../../lib/prisma.js";
 import { emitter } from "../../lib/emitter.js";
-import { express } from "../../lib/bolt.js";
+import { express, Request } from "../../lib/bolt.js";
 import { WebSocket, WebSocketServer } from 'ws';
 import { Event } from "../../lib/emitter.js";
 import { Session } from "@prisma/client";
@@ -9,6 +9,36 @@ import { Session } from "@prisma/client";
 express.get('/', async (req, res) => {
     await res.send('Hello World!');
 });
+
+express.get('/sessions', async (req, res) => {
+    
+});
+
+async function syncPollEvent(event: Event, session: Session, req: Request) {
+    const token = req.;
+
+    if (!token) {
+        return;
+    }
+
+    const user = await prisma.user.findUnique({
+        where: {
+            apiKey: token,
+        },
+    }); 
+
+    if (!user) {
+        return;
+    }
+
+    if (user.id === session.userId) {
+        client.send(JSON.stringify({
+            type: event,
+            userId: user.id,
+        }));
+    }    
+}
+
 
 async function syncEvent(event: Event, session: Session, client: WebSocket) {
     const token = (client as any).meta.token;
